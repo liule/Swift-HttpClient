@@ -9,19 +9,32 @@
 import Foundation
 
 class HttpClient: NSObject {
+    
+    //URL 解编码
+    class func decodeEscapesURL(value:String) -> String {
+        let str:NSString = value
+        return str.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
 /*
-    class func urlEncode(value:String) {
-        NSString
-        let str: CFString = Unmanaged.fromOpaque(value.toOpaque()).takeUnretainedValue()
-        let result = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-            originalString: value as CFStringRef,
-            charactersToLeaveUnescaped: nil,
-            legalURLCharactersToBeEscaped: "!*'();:@&=+$,/?%#[]" as CFStringRef,
-            encoding: kUnicodeUTF8Format)
-        
-        
-    }
+        var outputStr:NSMutableString = NSMutableString(string:value);
+        outputStr.replaceOccurrencesOfString("+", withString: " ", options: NSStringCompareOptions.LiteralSearch, range: NSMakeRange(0, outputStr.length))
+        return outputStr.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
 */
+    }
+    //URL 编码
+    class func encodeEscapesURL(value:String) -> String {
+        let str:NSString = value
+        let charactersToBeEscaped = "!*'();:@&=+$,/?%#[]" as CFStringRef  //":/?&=;+!@#$()',*"    //转意符号
+        //let charactersToLeaveUnescaped = "[]." as CFStringRef  //保留的符号
+        let result =
+        CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+            str as CFStringRef,
+            nil,    //charactersToLeaveUnescaped,
+            charactersToBeEscaped,
+            CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) as String
+        
+        return result
+    }
+
     class func arrayFromJSON(json:String!) -> Array<AnyObject>! {
         return objectFromJSON(json) as Array<AnyObject>
     }
@@ -86,7 +99,9 @@ class HttpClient: NSObject {
                     if postString.length > 0 {
                         postString.appendString("&")
                     }
-                    postString.appendString("\(key)=\(value)")
+                    let keyEncodeURL = HttpClient.encodeEscapesURL(key)
+                    let valueEncodeURL = HttpClient.encodeEscapesURL(value)
+                    postString.appendString("\(keyEncodeURL)=\(valueEncodeURL)")
                 }
                 let data:NSData = postString.dataUsingEncoding(NSUTF8StringEncoding)
                 request.HTTPBody = data;
