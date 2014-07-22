@@ -23,16 +23,17 @@ class HttpClient: NSObject {
     //URL 编码
     class func encodeEscapesURL(value:String) -> String {
         let str:NSString = value
+        let originalString = str as CFStringRef
         let charactersToBeEscaped = "!*'();:@&=+$,/?%#[]" as CFStringRef  //":/?&=;+!@#$()',*"    //转意符号
         //let charactersToLeaveUnescaped = "[]." as CFStringRef  //保留的符号
         let result =
         CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-            str as CFStringRef,
+            originalString,
             nil,    //charactersToLeaveUnescaped,
             charactersToBeEscaped,
-            CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) as String
+            CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) as NSString
         
-        return result
+        return result as String
     }
 
     class func arrayFromJSON(json:String!) -> Array<AnyObject>! {
@@ -132,6 +133,7 @@ extension HttpClient:NSURLConnectionDelegate {
     
     //接收到服务器回应的时候调用此方法
     func connection(connection: NSURLConnection!, didReceiveResponse response: NSURLResponse!) {
+        let httpResponse = response as NSHTTPURLResponse
         receiveData = NSMutableData()
     }
     
