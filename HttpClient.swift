@@ -33,7 +33,7 @@ class HttpClient: NSObject {
             charactersToBeEscaped,
             CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) as NSString
         
-        return result as String
+        return result
     }
 
     class func arrayFromJSON(json:String!) -> Array<AnyObject>! {
@@ -75,7 +75,7 @@ class HttpClient: NSObject {
     init(timeoutInterval: NSTimeInterval){
         self.timeoutInterval = timeoutInterval
     }
-    init() {
+    override init() {
         timeoutInterval = 10;
     }
     
